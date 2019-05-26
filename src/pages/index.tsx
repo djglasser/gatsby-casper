@@ -77,9 +77,9 @@ export interface IndexProps {
       };
     };
     allMarkdownRemark: {
-      edges: {
+      edges: Array<{
         node: PageContext;
-      }[];
+      }>;
     };
   };
 }
@@ -103,6 +103,7 @@ const IndexPage: React.FunctionComponent<IndexProps> = props => {
           content={`${config.siteUrl}${props.data.header.childImageSharp.fluid.src}`}
         />
         {config.facebook && <meta property="article:publisher" content={config.facebook} />}
+        {config.googleSiteVerification && <meta name="google-site-verification" content={config.googleSiteVerification} />}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={config.title} />
         <meta name="twitter:description" content={config.description} />
@@ -142,7 +143,7 @@ const IndexPage: React.FunctionComponent<IndexProps> = props => {
               </SiteTitle>
               <SiteDescription>{config.description}</SiteDescription>
             </SiteHeaderContent>
-            <SiteNav isHome={true} />
+            <SiteNav isHome />
           </div>
         </header>
         <main id="site-main" css={[SiteMain, outer]}>
@@ -190,7 +191,11 @@ export const pageQuery = graphql`
         }
       }
     }
-    allMarkdownRemark(limit: 1000, sort: { fields: [frontmatter___date], order: DESC }) {
+    allMarkdownRemark(
+      sort: { fields: [frontmatter___date], order: DESC },
+      filter: { frontmatter: { draft: { ne: true } } },
+      limit: 1000,
+    ) {
       edges {
         node {
           timeToRead
@@ -212,7 +217,7 @@ export const pageQuery = graphql`
               avatar {
                 children {
                   ... on ImageSharp {
-                    fixed(quality: 100) {
+                    fixed(quality: 90) {
                       src
                     }
                   }
